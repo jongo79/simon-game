@@ -105,7 +105,7 @@ const replayLastGame = () => {
     // Simulate button click for each index with a delay
     setTimeout(() => {
       handleReplay(index);
-    }, i * (speed * 1.2)); // Adjust the delay as needed
+    }, i * (speed / 2)); // Adjust the delay as needed
   });
 };
 
