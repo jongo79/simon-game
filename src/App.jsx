@@ -49,6 +49,7 @@ const speedGame = 400;
 const [sequence, setSequence] = useState([]);
 const [currentGame, setCurrentGame] = useState([]);
 const [lastGame, setLastGame] = useState([]);
+const [bestGame, setBestGame] = useState([]);
 const [isAllowedToPlay, setIsAllowedToPlay] = useState(false);
 const [speed, setSpeed] = useState(speedGame);
 const [turn, setTurn] = useState(0);
@@ -109,6 +110,17 @@ const replayLastGame = () => {
   });
 };
 
+const replayBestGame = () => {
+
+  // Iterate over the last game sequence
+  bestGame.forEach((index, i) => {
+    // Simulate button click for each index with a delay
+    setTimeout(() => {
+      handleReplay(index);
+    }, i * (speed * 1.2)); // Adjust the delay as needed
+  });
+};
+
 useEffect(() => {
   if(pulses > 0) {
     console.log("Comparing sequences...");
@@ -116,20 +128,31 @@ useEffect(() => {
     console.log("Current game:", currentGame);
     setLastGame(sequence);
     console.log("Last game:", lastGame);
+    
     if(Number(sequence[pulses -1]) === Number(currentGame[pulses -1])){
       setSuccess(success + 1);
     } else {
       const index = sequence[pulses -1]
       if (index) colors[index].ref.current.style.opacity = (1);
       play({id: 'error'})
+   
       setTimeout(() => {
         if (index) colors[index].ref.current.style.opacity = (0.5);
+        if (sequence.length > bestGame.length){
+          setBestGame(sequence);
+          console.log("Best Game:", bestGame);
+        } 
         setIsGameOn(false);
       }, speed * 2 )
+    
     setIsAllowedToPlay(false);
     }
   }
-}, [pulses])
+}, [pulses, bestGame])
+
+useEffect(() => {
+  console.log("Best Game:", bestGame);
+}, [bestGame]);
 
 useEffect(() => {
   console.log("Game state changed. Is game on?", isGameOn);
@@ -201,8 +224,9 @@ return (
       <div className='header'>
         <h1>SUPER SIMON</h1>
       </div>
-      <button onClick={initGame}>START</button>
-      <button onClick={replayLastGame}>Replay Last Game</button>
+      <button className = "button" onClick={initGame}>START</button>
+      <button className = "button" onClick={replayLastGame}>Last Game</button>
+      <button className = "button" onClick={replayBestGame}>Best Game</button> 
       <div className='container'>
 
     {colors.map((item, index) => {

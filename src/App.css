@@ -8,24 +8,31 @@
 .container {
     display: flex;
     flex-wrap: wrap;
-    width: 600px;
-    height: 600px;
+    width: 400px; /* Adjust the width */
+    height: 400px; /* Adjust the height */
     background-color: black;
-    padding: 30px;
-    border-radius: 320px;
+    padding: 20px; /* Adjust padding */
+    border-radius: 49%; /* Set border-radius to half of the width/height */
+}
+
+.button {
+    border: 1px solid black;
+    margin: 2px;
+    margin-bottom: 10px;
 }
 
 .center-container {
     position: absolute;
-    border-radius: 300px;
+    border-radius: 49%; /* Set border-radius to half of the width/height */
     background-color: black;
-    width: 600px;
-    height: 600px;
+    width: 400px; /* Match the width of the container */
+    height: 400px; /* Match the height of the container */
 }
 
 .pad {
-    width: 250px;
-    margin: 25px;
+    width: 170px; /* Adjust the width of the pads */
+    height: 170px; /* Adjust the height of the pads */
+    margin: 15px; /* Adjust margin */
 }
 
 .pad:hover {
@@ -33,26 +40,25 @@
 }
 
 .pad-0{
-    border-top-left-radius: 300px;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 20px;
+    border-top-left-radius: 200px; /* Adjust border-radius for each pad */
+    border-top-right-radius: 10px;
+    border-bottom-left-radius: 10px;
 }
 
 .pad-1{
-    border-top-right-radius: 300px;
-    border-top-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-top-right-radius: 200px; /* Adjust border-radius for each pad */
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
 .pad-2{
-    border-bottom-left-radius: 300px;
-    border-top-left-radius:20px;
-    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 200px; /* Adjust border-radius for each pad */
+    border-top-left-radius:10px;
+    border-bottom-right-radius: 10px;
 }
 
 .pad-3{
-    border-bottom-right-radius: 300px;
-    border-top-right-radius:20px;
-    border-bottom-left-radius: 20px;
-
+    border-bottom-right-radius: 200px; /* Adjust border-radius for each pad */
+    border-top-right-radius:10px;
+    border-bottom-left-radius: 10px;
 }

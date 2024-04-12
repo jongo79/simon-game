@@ -49,7 +49,6 @@ const speedGame = 400;
 const [sequence, setSequence] = useState([]);
 const [currentGame, setCurrentGame] = useState([]);
 const [lastGame, setLastGame] = useState([]);
-const [replay, setReplay] = useState(false);
 const [isAllowedToPlay, setIsAllowedToPlay] = useState(false);
 const [speed, setSpeed] = useState(speedGame);
 const [turn, setTurn] = useState(0);
@@ -101,9 +100,13 @@ const handleReplay = (index) => {
 }
 
 const replayLastGame = () => {
-console.log("Last game:", lastGame);
-setReplay (true);
-console.log("Replay", replay)
+  // Iterate over the last game sequence
+  lastGame.forEach((index, i) => {
+    // Simulate button click for each index with a delay
+    setTimeout(() => {
+      handleReplay(index);
+    }, i * (speed * 1.2)); // Adjust the delay as needed
+  });
 };
 
 useEffect(() => {
@@ -168,21 +171,6 @@ useEffect(() => {
   setIsAllowedToPlay(true);
 }, [sequence])
 
-useEffect(() => {
-  console.log('Effect triggered');
-  if(!isAllowedToPlay) {
-    lastGame.map((item, index) => {
-      setTimeout(() => {
-        play({id: colors[item].sound})
-        colors[item].ref.current.style.opacity = (1);
-        setTimeout(() => {
-          colors[item].ref.current.style.opacity = (0.5);
-        }, speed / 2 )
-      }, speed * index )  
-    })
-  }
-  setIsAllowedToPlay(true);
-}, [replay])
 
 return (
   <>

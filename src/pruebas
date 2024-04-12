@@ -1,225 +1,261 @@
-import {useState, useEffect, useRef} from 'react'
-import useSound from 'use-sound';
+import { useState, useEffect, useRef } from 'react';
+import useSound from "use-sound";
 import simon from './assets/sounds/sprite.mp3'
 import './App.css'
 
 function App() {
-const blueRef = useRef(null);
-const yellowRef = useRef(null);
-const greenRef = useRef(null);
-const redRef = useRef(null);
+  // objects reference
+  const blueRef = useRef(null)
+  const yellowRef = useRef(null)
+  const greenRef = useRef(null)
+  const redRef = useRef(null)
+  // sounds hook */
+  const [play] = useSound(simon, {
+    sprite: {
+      one: [0, 500],
+      two: [1000, 500],
+      three: [2000, 500],
+      four: [3000, 500],
+      error: [4000, 1000]
+    }
+  })
 
-const [play] = useSound(simon, {
-  sprite:{
-    one: [0, 500],
-    two: [1000, 500],
-    three: [2000, 500],
-    four: [3000, 500],
-    error: [4000, 1000]
-  },
-});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  type Colors = { color: string, ref: any, sound: string }[]
+  // buttons objects
+  const colors: Colors = [
+    {
+      color: '#faf303',
+      ref: yellowRef,
+      sound: 'one'
+    },
+    {
+      color: '#030afa',
+      ref: blueRef,
+      sound: 'two'
+    },
+    {
+      color: '#fa0e03',
+      ref: redRef,
+      sound: 'three'
+    },
+    {
+      color: '#0afa03',
+      ref: greenRef,
+      sound: 'four'
+    },
+  ]
+  // game parameters
+  const minNumber = 0
+  const maxNumber = 3;
+  const speedGame = 400
+  // game states
+  const [sequence, setSequence] = useState<number[]>([])
+  const [currentGame, setCurrentGame] = useState<number[]>([])
+  const [isAllowedToPlay, setIsAllowedToPlay] = useState(false)
+  const [speed, setSpeed] = useState(speedGame)
+  const [turn, setTurn] = useState(0)
+  const [pulses, setPulses] = useState(0)
+  const [success, setSuccess] = useState(0)
+  const [isGameOn, setIsGameOn] = useState(false)
+  //best sequence
+  const [best, setBest] = useState<number[]>([])
+  // last Interaction
+  const [last, setLast] = useState<number[]>([])
+  // game level
+  const [gameLevel, setGameLevel] = useState(2)
 
-const colors = [
-  {
-    color:'#FAF303',
-    ref: yellowRef,
-    sound: 'one'
-  },
-  {
-    color:'#030AFA',
-    ref: blueRef,
-    sound: 'two'
-  },
-  {
-    color:'#FA0E03',
-    ref: redRef,
-    sound: 'three'
-  },
-  {
-    color:'#0AFA03',
-    ref: greenRef,
-    sound: 'four'
+  // create a random number
+  const randomNumber = () => {
+    setIsAllowedToPlay(false)
+    const randomNumber = Math.floor(Math.random() * (maxNumber - minNumber + 1) + minNumber)
+    setSequence([...sequence, randomNumber])
+    // set last record
+    setLast(sequence)
+    localStorage.setItem("last", `${sequence}`)
+
+    // set best sequence
+    if (sequence.length > best.length) {
+      setBest(sequence)
+      localStorage.setItem("best", `${sequence}`)
+    }
+    setTurn(turn + 1)
   }
-];
+  // game start function
+  const initGame = () => {
 
-const minNumber = 0;
-const maxNumber = 3;
-const speedGame = 400;
-
-const [sequence, setSequence] = useState([]);
-const [currentGame, setCurrentGame] = useState([]);
-const [lastGame, setLastGame] = useState([]);
-const [isAllowedToPlay, setIsAllowedToPlay] = useState(false);
-const [speed, setSpeed] = useState(speedGame);
-const [turn, setTurn] = useState(0);
-const [pulses, setPulses] = useState(0);
-const [success, setSuccess] = useState(0);
-const [isGameOn, setIsGameOn] = useState(false);
-
-const initGame = () => {
-  randomNumber();
-  setIsGameOn(true);
-}
-
-const randomNumber = () => {
-  setIsAllowedToPlay(false);
-  const randomNumber = Math.floor(Math.random()* (maxNumber - minNumber + 1) + minNumber);
-  console.log("Generated random number:", randomNumber);
-  setSequence([...sequence, randomNumber]);
-  setTurn(turn + 1);
-}
-
-const handleClick = (index) => {
-  console.log("Clicked index:", index);
-  if(isAllowedToPlay) {
-    play({id: colors[index].sound})
-    colors[index].ref.current.style.opacity = (1);
-    colors[index].ref.current.style.scale = (0.9);
-    setTimeout(() => {
-      colors[index].ref.current.style.opacity = (0.5);
-      colors[index].ref.current.style.scale = (1);
-      setCurrentGame([...currentGame, index]); // Update currentGame with the clicked index
-      console.log("Current game after click:", currentGame); // Add this log
-      setPulses(pulses+1);
-    }, speed / 2 )
+    randomNumber()
+    setIsGameOn(true)
   }
-}
-
-const handleReplay = (index) => {
-  console.log("Replay index:", index);
-  if(isAllowedToPlay) {
-    play({id: colors[index].sound})
-    colors[index].ref.current.style.opacity = (1);
-    colors[index].ref.current.style.scale = (0.9);
-    setTimeout(() => {
-      colors[index].ref.current.style.opacity = (0.5);
-      colors[index].ref.current.style.scale = (1);
-      
-    }, speed / 2 )
-  }
-}
-
-const replayLastGame = () => {
-  // Iterate over the last game sequence
-  lastGame.forEach((index, i) => {
-    // Simulate button click for each index with a delay
-    setTimeout(() => {
-      handleReplay(index);
-    }, i * (speed / 2)); // Adjust the delay as needed
-  });
-};
-
-useEffect(() => {
-  if(pulses > 0) {
-    console.log("Comparing sequences...");
-    console.log("Current sequence:", sequence);
-    console.log("Current game:", currentGame);
-    setLastGame(sequence);
-    console.log("Last game:", lastGame);
-    if(Number(sequence[pulses -1]) === Number(currentGame[pulses -1])){
-      setSuccess(success + 1);
-    } else {
-      const index = sequence[pulses -1]
-      if (index) colors[index].ref.current.style.opacity = (1);
-      play({id: 'error'})
+  // best game reproduction
+  const bestGame = () => {
+    //bestSequence
+    if (best.length > 0) {
+      setIsAllowedToPlay(false)
+      setSequence(best)
+      setTurn(turn + 1)
+      setIsGameOn(true)
       setTimeout(() => {
-        if (index) colors[index].ref.current.style.opacity = (0.5);
-        setIsGameOn(false);
-      }, speed * 2 )
-    setIsAllowedToPlay(false);
+        setIsGameOn(false)
+      }, best.length * 550)
     }
   }
-}, [pulses])
-
-useEffect(() => {
-  console.log("Game state changed. Is game on?", isGameOn);
-  if(!isGameOn) {
-    setSequence([]);
-    setCurrentGame([]);
-    setIsAllowedToPlay(false);
-    setSpeed(speedGame);
-    setSuccess(0);
-    setPulses(0);
-    setTurn(0);
-  }
-}, [isGameOn])
-
-useEffect(() => {
-  if(success === sequence.length && success > 0) {
-    setSpeed(speed - sequence.length * 2);
-    setTimeout(() => {
-      setSuccess(0);
-      setPulses(0);
-      setCurrentGame([])
-      randomNumber();
-    }, 500);
-  }
-},[success])
-
-useEffect(() => {
-  if(!isAllowedToPlay) {
-    sequence.map((item, index) => {
+  // last Game reproduction
+  const lastGame = () => {
+    // lastSequence
+    if (last.length > 0) {
+      setIsAllowedToPlay(false)
+      setSequence(last)
+      setTurn(turn + 1)
+      setIsGameOn(true)
       setTimeout(() => {
-        play({id: colors[item].sound})
-        colors[item].ref.current.style.opacity = (1);
+        setIsGameOn(false)
+      }, last.length * 550)
+    }
+  }
+
+  // simon events handle
+  const handleClick = (index: number) => {
+    if (isAllowedToPlay) {
+      play({ id: colors[index].sound })
+      colors[index].ref.current.style.opacity = (1)
+      colors[index].ref.current.style.scale = (0.9)
+      setTimeout(() => {
+        colors[index].ref.current.style.opacity = (0.5)
+        colors[index].ref.current.style.scale = (1)
+        setCurrentGame([...currentGame, index])
+        setPulses(pulses + 1)
+
+      }, speed / 2)
+    }
+  }
+  // Handle level
+  const handleLevel = (event: any) => {
+    const level = event.target.value
+    if (level === "level1") setGameLevel(2)
+    if (level === "level2") setGameLevel(4)
+    if (level === "level3") setGameLevel(8)
+  }
+  // get variables from locastorage
+  useEffect(() => {
+    if (localStorage.storageAvalilable !== "undefined") {
+      try {
+        const lastGame = Array.from(localStorage.getItem("last") as string).filter((element) => element !== ",")
+        const bestGame = Array.from(localStorage.getItem("best") as string).filter((element) => element !== ",")
+        const lastGameNumber = lastGame.map((number) => Number(number))
+        const bestGameNumber = bestGame.map((number) => Number(number))
+        setBest(bestGameNumber)
+        setLast(lastGameNumber)
+      } catch (e) {
+        console.log("storage empty")
+      }
+
+    }
+
+  }, [])
+  // simon sequence verification and bifurcations
+  useEffect(() => {
+    if (pulses > 0) {
+      if (Number(sequence[pulses - 1]) === Number(currentGame[pulses - 1])) {
+        setSuccess(success + 1)
+      } else {
+        const index = sequence[pulses - 1]
+        if (index) {
+          colors[index].ref.current.style.opacity = (1)
+        }
+        play({ id: 'error' })
         setTimeout(() => {
-          colors[item].ref.current.style.opacity = (0.5);
-        }, speed / 2 )
-      }, speed * index )  
-    })
-  }
-  setIsAllowedToPlay(true);
-}, [sequence])
+          if (index) {
+            colors[index].ref.current.style.opacity = (0.5)
+          }
+          setIsGameOn(false)
+        }, speed * 2)
+        setIsAllowedToPlay(false)
+      }
+    }
+  }, [pulses])
+  // restart the game states
+  useEffect(() => {
+    if (!isGameOn) {
+      setSequence([])
+      setCurrentGame([])
+      setIsAllowedToPlay(false)
+      setSpeed(speedGame)
+      setSuccess(0)
+      setPulses(0)
+      setTurn(0)
+    }
+  }, [isGameOn])
 
-
-return (
-  <>
-  {isGameOn
-  ? 
-  <>
-  <div className='header'>
-    <h1>Turn {turn}</h1>
-  </div>
-    <div className='container'>
-
-    {colors.map((item, index) => {
-      return(
-        <div
-          key={index}
-          ref={item.ref}
-          className={`pad pad-${index}`}
-          style={{backgroundColor:`${item.color}`, opacity:0.6}}
-          onClick={() => handleClick(index)}
-        >
-        </div>
-      )
-    }) }
-    </div>
-    </>
-  :
+  // increase the speed
+  useEffect(() => {
+    if (success === sequence.length && success > 0) {
+      setSpeed(speed - sequence.length * gameLevel)
+      console.log(speed - sequence.length)
+      setTimeout(() => {
+        setSuccess(0);
+        setPulses(0)
+        setCurrentGame([])
+        randomNumber()
+      }, 500)
+    }
+  }, [success])
+  // sequence increment
+  useEffect(() => {
+    if (!isAllowedToPlay) {
+      sequence.map((item, index) => {
+        setTimeout(() => {
+          play({ id: colors[item].sound })
+          colors[item].ref.current.style.opacity = (1);
+          setTimeout(() => {
+            colors[item].ref.current.style.opacity = [0.5]
+          }, speed / 2)
+        }, speed * index)
+      })
+    }
+    setIsAllowedToPlay(true)
+  }, [sequence])
+  return (
     <>
-      <div className='header'>
-        <h1>SUPER SIMON</h1>
-      </div>
-      <button onClick={initGame}>START</button>
-      <button onClick={replayLastGame}>Replay Last Game</button>
-      <div className='container'>
+      {
+        isGameOn ?
+          <>
+            <div className='header'>
+              <h1>Turn {turn}</h1>
+            </div>
+            <div className="container">
+              {colors.map((item, index) => {
+                return (
+                  <div
+                    key={index}
+                    ref={item.ref}
+                    className={`pad pad-${index}`}
+                    style={{ backgroundColor: `${item.color}`, opacity: 0.6 }}
+                    onClick={() => handleClick(index)}
+                  ></div>)
+              })}
+            </div>
+          </> :
+          <>
+            <div className='header'>
+              <h1>SUPER SIMON</h1>
+            </div>
+            <div className="controls">
+              <button onClick={initGame}>START</button>
+              <button onClick={bestGame}>BEST</button>
+              <button onClick={lastGame}>LAST</button>
+              <select onChange={handleLevel} name="levels" defaultValue="level1">
+                <option value="level1">Level 1</option>
+                <option value="level2">Level 2</option>
+                <option value="level3">Level 3</option>
+              </select>
+            </div>
 
-    {colors.map((item, index) => {
-      return(
-        <div
-          key={index}
-          ref={item.ref}
-          className={`pad pad-${index}`}
-          style={{backgroundColor:`${item.color}`, opacity:0.6}}
-        >
-        </div>
-      )
-    }) }
-    </div>
+          </>
+      }
+
     </>
-  }
-  </>
-)
+  )
 }
-export default App;
+
+export default App
